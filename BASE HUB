@@ -1,0 +1,585 @@
+-- [Base Hub] Ultimate Edition with Key System & Fixed 3D Fly & Box ESP
+pcall(function()
+    local CoreGui = game:GetService("CoreGui")
+    local UserInputService = game:GetService("UserInputService")
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local localPlayer = Players.LocalPlayer
+    local Mouse = localPlayer:GetMouse()
+
+    if CoreGui:FindFirstChild("BaseHubFinal") then
+        CoreGui.BaseHubFinal:Destroy()
+    end
+
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "BaseHubFinal"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.IgnoreGuiInset = true
+    ScreenGui.Parent = CoreGui
+
+    -- ==========================================
+    -- [키 시스템 (Key System)]
+    -- ==========================================
+    local KeyGui = Instance.new("Frame")
+    KeyGui.Size = UDim2.new(0, 320, 0, 220)
+    KeyGui.Position = UDim2.new(0.5, -160, 0.5, -110)
+    KeyGui.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    KeyGui.BorderSizePixel = 0
+    KeyGui.Parent = ScreenGui
+
+    local KeyCorner = Instance.new("UICorner")
+    KeyCorner.CornerRadius = UDim.new(0, 10)
+    KeyCorner.Parent = KeyGui
+
+    local KeyStroke = Instance.new("UIStroke")
+    KeyStroke.Color = Color3.fromRGB(60, 60, 90)
+    KeyStroke.Thickness = 2
+    KeyStroke.Parent = KeyGui
+
+    local KeyTitle = Instance.new("TextLabel")
+    KeyTitle.Size = UDim2.new(1, 0, 0, 40)
+    KeyTitle.BackgroundTransparency = 1
+    KeyTitle.Text = "🔑 BASE HUB - KEY SYSTEM"
+    KeyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyTitle.TextSize, KeyTitle.Font = 14, Enum.Font.GothamBold
+    KeyTitle.Parent = KeyGui
+
+    local KeyBox = Instance.new("TextBox")
+    KeyBox.Size = UDim2.new(0.8, 0, 0, 40)
+    KeyBox.Position = UDim2.new(0.1, 0, 0.28, 0)
+    KeyBox.BackgroundColor3 = Color3.fromRGB(28, 28, 38)
+    KeyBox.PlaceholderText = "키를 입력하세요 (기본: base2026)"
+    KeyBox.Text = ""
+    KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
+    KeyBox.TextSize, KeyBox.Font = 12, Enum.Font.GothamMedium
+    KeyBox.Parent = KeyGui
+
+    local BoxCorner = Instance.new("UICorner")
+    BoxCorner.CornerRadius = UDim.new(0, 6)
+    BoxCorner.Parent = KeyBox
+
+    local SubmitBtn = Instance.new("TextButton")
+    SubmitBtn.Size = UDim2.new(0.8, 0, 0, 36)
+    SubmitBtn.Position = UDim2.new(0.1, 0, 0.54, 0)
+    SubmitBtn.BackgroundColor3 = Color3.fromRGB(80, 50, 200)
+    SubmitBtn.Text = "인증하기"
+    SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SubmitBtn.TextSize, SubmitBtn.Font = 13, Enum.Font.GothamBold
+    SubmitBtn.Parent = KeyGui
+
+    local BtnCorner = Instance.new("UICorner")
+    BtnCorner.CornerRadius = UDim.new(0, 6)
+    BtnCorner.Parent = SubmitBtn
+
+    local DiscordBtn = Instance.new("TextButton")
+    DiscordBtn.Size = UDim2.new(0.8, 0, 0, 32)
+    DiscordBtn.Position = UDim2.new(0.1, 0, 0.77, 0)
+    DiscordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+    DiscordBtn.Text = "디스코드 링크 복사"
+    DiscordBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    DiscordBtn.TextSize, DiscordBtn.Font = 12, Enum.Font.GothamBold
+    DiscordBtn.Parent = KeyGui
+
+    local DiscordCorner = Instance.new("UICorner")
+    DiscordCorner.CornerRadius = UDim.new(0, 6)
+    DiscordCorner.Parent = DiscordBtn
+
+    DiscordBtn.MouseButton1Click:Connect(function()
+        pcall(function()
+            setclipboard("https://discord.gg/Z5pKmjrYzZ")
+        end)
+        DiscordBtn.Text = "클립보드에 복사됨!"
+        task.wait(1.5)
+        DiscordBtn.Text = "디스코드 링크 복사"
+    end)
+
+    local authenticated = false
+
+    SubmitBtn.MouseButton1Click:Connect(function()
+        if KeyBox.Text == "base2026" or KeyBox.Text == "1" then
+            authenticated = true
+            KeyGui:Destroy()
+        else
+            KeyBox.Text = ""
+            KeyBox.PlaceholderText = "틀렸습니다! 다시 입력하세요"
+        end
+    end)
+
+    repeat task.wait() until authenticated
+
+    -- ==========================================
+    -- [로딩 화면 연출]
+    -- ==========================================
+    local LoadingFrame = Instance.new("Frame")
+    LoadingFrame.Size = UDim2.new(0, 300, 0, 100)
+    LoadingFrame.Position = UDim2.new(0.5, -150, 0.5, -50)
+    LoadingFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    LoadingFrame.BorderSizePixel = 0
+    LoadingFrame.Parent = ScreenGui
+
+    local LoadCorner = Instance.new("UICorner")
+    LoadCorner.CornerRadius = UDim.new(0, 10)
+    LoadCorner.Parent = LoadingFrame
+
+    local LoadStroke = Instance.new("UIStroke")
+    LoadStroke.Color = Color3.fromRGB(45, 45, 65)
+    LoadStroke.Thickness = 2
+    LoadStroke.Parent = LoadingFrame
+
+    local LoadText = Instance.new("TextLabel")
+    LoadText.Size = UDim2.new(1, 0, 1, 0)
+    LoadText.BackgroundTransparency = 1
+    LoadText.Text = "⚡ BASE HUB 로딩 중..."
+    LoadText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    LoadText.TextSize, LoadText.Font = 14, Enum.Font.GothamBold
+    LoadText.Parent = LoadingFrame
+
+    task.wait(1)
+    LoadingFrame:Destroy()
+
+    -- 메인 허브 생성
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Size = UDim2.new(0, 580, 0, 440)
+    MainFrame.Position = UDim2.new(0.5, -290, 0.5, -220)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.ClipsDescendants = true
+    MainFrame.Visible = true -- 처음엔 보이게 시작 (시작하자마자 안 눌리게 차단)
+    MainFrame.Parent = ScreenGui
+
+    local MainCorner = Instance.new("UICorner")
+    MainCorner.CornerRadius = UDim.new(0, 10)
+    MainCorner.Parent = MainFrame
+
+    local MainStroke = Instance.new("UIStroke")
+    MainStroke.Color = Color3.fromRGB(45, 45, 65)
+    MainStroke.Thickness = 2
+    MainStroke.Parent = MainFrame
+
+    -- ==========================================
+    -- [오른쪽 쉬프트 UI 완전 토글 (흰색 잔상 제거)]
+    -- ==========================================
+    local isVisible = true
+
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if input.KeyCode == Enum.KeyCode.RightShift then
+            isVisible = not isVisible
+            MainFrame.Visible = isVisible
+        end
+    end)
+
+    -- 상단 바
+    local TopBar = Instance.new("Frame")
+    TopBar.Size = UDim2.new(1, 0, 0, 38)
+    TopBar.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
+    TopBar.BorderSizePixel = 0
+    TopBar.Parent = MainFrame
+
+    local TopCorner = Instance.new("UICorner")
+    TopCorner.CornerRadius = UDim.new(0, 10)
+    TopCorner.Parent = TopBar
+
+    local dragging = false
+    local dragInput, dragStart, startPos
+
+    TopBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = MainFrame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end)
+
+    TopBar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    local HubTitle = Instance.new("TextLabel")
+    HubTitle.Size = UDim2.new(1, -20, 1, 0)
+    HubTitle.Position = UDim2.new(0, 15, 0, 0)
+    HubTitle.BackgroundTransparency = 1
+    HubTitle.Text = "⚡ BASE HUB ⚡"
+    HubTitle.TextColor3 = Color3.fromRGB(200, 200, 220)
+    HubTitle.TextSize, HubTitle.Font = 13, Enum.Font.GothamBold
+    HubTitle.Parent = TopBar
+
+    -- 카테고리 탭 버튼 영역
+    local TabBar = Instance.new("Frame")
+    TabBar.Size = UDim2.new(1, -20, 0, 36)
+    TabBar.Position = UDim2.new(0, 10, 0, 46)
+    TabBar.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+    TabBar.Parent = MainFrame
+
+    local TabCorner = Instance.new("UICorner")
+    TabCorner.CornerRadius = UDim.new(0, 6)
+    TabCorner.Parent = TabBar
+
+    local TabLayout = Instance.new("UIListLayout")
+    TabLayout.FillDirection = Enum.FillDirection.Horizontal
+    TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    TabLayout.Parent = TabBar
+
+    local pages = {}
+    local function createCategory(name)
+        local page = Instance.new("ScrollingFrame")
+        page.Size = UDim2.new(1, -20, 1, -96)
+        page.Position = UDim2.new(0, 10, 0, 88)
+        page.BackgroundTransparency = 1
+        page.CanvasSize = UDim2.new(0, 0, 0, 500)
+        page.ScrollBarThickness = 4
+        page.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 80)
+        page.Visible = false
+        page.Parent = MainFrame
+
+        local list = Instance.new("UIListLayout")
+        list.SortOrder = Enum.SortOrder.LayoutOrder
+        list.Padding = UDim.new(0, 8)
+        list.Parent = page
+
+        local tabBtn = Instance.new("TextButton")
+        tabBtn.Size = UDim2.new(0.2, 0, 1, 0)
+        tabBtn.BackgroundTransparency = 1
+        tabBtn.Text = name
+        tabBtn.TextColor3 = Color3.fromRGB(160, 160, 180)
+        tabBtn.TextSize, tabBtn.Font = 11, Enum.Font.GothamBold
+        tabBtn.Parent = TabBar
+
+        tabBtn.MouseButton1Click:Connect(function()
+            for _, p in pairs(pages) do p.Visible = false end
+            page.Visible = true
+        end)
+
+        pages[name] = page
+        return page
+    end
+
+    local function createButton(page, name, callback)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(1, 0, 0, 38)
+        btn.BackgroundColor3 = Color3.fromRGB(28, 28, 38)
+        btn.Text = "  " .. name
+        btn.TextColor3 = Color3.fromRGB(230, 230, 240)
+        btn.TextSize, btn.Font = 13, Enum.Font.GothamSemibold
+        btn.TextXAlignment = Enum.TextXAlignment.Left
+        btn.Parent = page
+
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 6)
+        corner.Parent = btn
+
+        btn.MouseButton1Click:Connect(callback)
+        return btn
+    end
+
+    -- ==========================================
+    -- 1. 테마 카테고리
+    -- ==========================================
+    local themePage = createCategory("🎨 테마")
+    themePage.Visible = true
+
+    createButton(themePage, "🌈 하늘 무지개 테마 적용", function()
+        local lighting = game:GetService("Lighting")
+        lighting.Ambient = Color3.fromRGB(255, 100, 255)
+        lighting.OutdoorAmbient = Color3.fromRGB(100, 200, 255)
+        lighting.ClockTime = 12
+        pcall(function()
+            local sky = Instance.new("Sky")
+            sky.SkyboxBk = "rbxassetid://60053075"
+            sky.SkyboxDn = "rbxassetid://60053075"
+            sky.SkyboxFt = "rbxassetid://60053075"
+            sky.SkyboxLf = "rbxassetid://60053075"
+            sky.SkyboxRt = "rbxassetid://60053075"
+            sky.SkyboxUp = "rbxassetid://60053075"
+            sky.Parent = lighting
+        end)
+    end)
+
+    -- ==========================================
+    -- 2. 공지 카테고리
+    -- ==========================================
+    local noticePage = createCategory("📢 공지")
+    local NoticeBox = Instance.new("TextBox")
+    NoticeBox.Size = UDim2.new(1, 0, 0, 80)
+    NoticeBox.BackgroundColor3 = Color3.fromRGB(24, 24, 32)
+    NoticeBox.Text = "📢 [공지] 기존의 BASE HUB에 엄청난 기술들을 넣었습니다!"
+    NoticeBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    NoticeBox.TextSize, NoticeBox.Font = 12, Enum.Font.GothamMedium
+    NoticeBox.TextWrapped = true
+    NoticeBox.ClearTextOnFocus = false
+    NoticeBox.Parent = noticePage
+
+    local NoticeCorner = Instance.new("UICorner")
+    NoticeCorner.CornerRadius = UDim.new(0, 6)
+    NoticeCorner.Parent = NoticeBox
+
+    -- ==========================================
+    -- 3. 속도 카테고리 (완벽한 3D 자유 플라이 + 무한점프)
+    -- ==========================================
+    local speedPage = createCategory("⚡ 속도")
+
+    local flying = false
+    local flySpeed = 50
+    local flyConnection
+    local bv, bg
+
+    local flyKeys = { W = false, A = false, S = false, D = false }
+
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+        if input.KeyCode == Enum.KeyCode.W then flyKeys.W = true
+        elseif input.KeyCode == Enum.KeyCode.A then flyKeys.A = true
+        elseif input.KeyCode == Enum.KeyCode.S then flyKeys.S = true
+        elseif input.KeyCode == Enum.KeyCode.D then flyKeys.D = true end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.W then flyKeys.W = false
+        elseif input.KeyCode == Enum.KeyCode.A then flyKeys.A = false
+        elseif input.KeyCode == Enum.KeyCode.S then flyKeys.S = false
+        elseif input.KeyCode == Enum.KeyCode.D then flyKeys.D = false end
+    end)
+
+    createButton(speedPage, "✈️ 3D 자유 비행 (Fly) 토글", function()
+        flying = not flying
+        local character = localPlayer.Character
+        if not character then return end
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        local humanoid = character:FindFirstChild("Humanoid")
+        if not rootPart or not humanoid then return end
+
+        if flying then
+            humanoid.PlatformStand = true
+            if rootPart:FindFirstChild("BaseFlyVel") then rootPart.BaseFlyVel:Destroy() end
+            if rootPart:FindFirstChild("BaseFlyGyro") then rootPart.BaseFlyGyro:Destroy() end
+
+            bv = Instance.new("BodyVelocity")
+            bv.Name = "BaseFlyVel"
+            bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            bv.Velocity = Vector3.zero
+            bv.Parent = rootPart
+
+            bg = Instance.new("BodyGyro")
+            bg.Name = "BaseFlyGyro"
+            bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+            bg.P = 30000
+            bg.CFrame = rootPart.CFrame
+            bg.Parent = rootPart
+
+            if flyConnection then flyConnection:Disconnect() end
+            flyConnection = RunService.RenderStepped:Connect(function()
+                if not flying or not character or not rootPart or not humanoid or humanoid.Health <= 0 then
+                    if flyConnection then
+                        flyConnection:Disconnect()
+                        flyConnection = nil
+                    end
+                    return
+                end
+
+                local cam = workspace.CurrentCamera
+                local forward = cam.CFrame.LookVector
+                local right = cam.CFrame.RightVector
+                local direction = Vector3.zero
+
+                if flyKeys.W then direction += forward end
+                if flyKeys.S then direction -= forward end
+                if flyKeys.A then direction -= right end
+                if flyKeys.D then direction += right end
+
+                if direction.Magnitude > 0 then
+                    direction = direction.Unit
+                    bv.Velocity = direction * flySpeed
+                else
+                    bv.Velocity = Vector3.zero
+                end
+
+                bg.CFrame = cam.CFrame
+            end)
+        else
+            humanoid.PlatformStand = false
+            if flyConnection then
+                flyConnection:Disconnect()
+                flyConnection = nil
+            end
+            if rootPart:FindFirstChild("BaseFlyVel") then rootPart.BaseFlyVel:Destroy() end
+            if rootPart:FindFirstChild("BaseFlyGyro") then rootPart.BaseFlyGyro:Destroy() end
+        end
+    end)
+
+    createButton(speedPage, "⚡ 이동 속도 2000 설정", function()
+        local character = localPlayer.Character
+        if character and character:FindFirstChild("Humanoid") then
+            character.Humanoid.WalkSpeed = 2000
+        end
+    end)
+
+    local infJumpEnabled = false
+    createButton(speedPage, "🦘 무한 점프 (Infinite Jump) 토글", function()
+        infJumpEnabled = not infJumpEnabled
+    end)
+
+    UserInputService.JumpRequest:Connect(function()
+        if infJumpEnabled then
+            local character = localPlayer.Character
+            if character and character:FindFirstChildOfClass("Humanoid") then
+                character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end
+    end)
+
+    -- ==========================================
+    -- 4. 전투/기능 카테고리 (박스 에임봇/ESP, 히트박스, 오토팜)
+    -- ==========================================
+    local combatPage = createCategory("🎯 전투/기능")
+
+    local boxEspEnabled = false
+    createButton(combatPage, "📦 박스 에임봇 (Box ESP) 토글", function()
+        boxEspEnabled = not boxEspEnabled
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character then
+                if boxEspEnabled then
+                    if not p.Character:FindFirstChild("BaseBoxESP") then
+                        local box = Instance.new("SelectionBox")
+                        box.Name = "BaseBoxESP"
+                        box.Adornee = p.Character
+                        box.Color3 = Color3.fromRGB(255, 50, 50)
+                        box.LineThickness = 0.05
+                        box.Parent = p.Character
+                    end
+                else
+                    if p.Character:FindFirstChild("BaseBoxESP") then
+                        p.Character.BaseBoxESP:Destroy()
+                    end
+                end
+            end
+        end
+    end)
+
+    local hitboxEnabled = false
+    createButton(combatPage, "📦 히트박스 확장 토글", function()
+        hitboxEnabled = not hitboxEnabled
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character then
+                local root = p.Character:FindFirstChild("HumanoidRootPart")
+                if root then
+                    if hitboxEnabled then
+                        root.Size = Vector3.new(10, 10, 10)
+                        root.Transparency = 0.7
+                        root.CanCollide = false
+                    else
+                        root.Size = Vector3.new(2, 2, 1)
+                        root.Transparency = 1
+                        root.CanCollide = false
+                    end
+                end
+            end
+        end
+    end)
+
+    local autoFarmActive = false
+    createButton(combatPage, "💰 오토 팜 (Auto Farm) 토글", function()
+        autoFarmActive = not autoFarmActive
+        task.spawn(function()
+            while autoFarmActive do
+                task.wait(0.5)
+                pcall(function()
+                    local character = localPlayer.Character
+                    if character and character:FindFirstChild("HumanoidRootPart") then
+                        local root = character.HumanoidRootPart
+                        for _, obj in pairs(workspace:GetDescendants()) do
+                            if obj:IsA("BasePart") and (obj.Name:lower():find("coin") or obj.Name:lower():find("money") or obj.Name:lower():find("gem") or obj.Name:lower():find("part")) then
+                                if (root.Position - obj.Position).Magnitude < 30 then
+                                    obj.CFrame = root.CFrame
+                                end
+                            end
+                        end
+                    end
+                end)
+            end
+        end)
+    end)
+
+    -- ==========================================
+    -- 5. 트롤 카테고리
+    -- ==========================================
+    local trollPage = createCategory("💥 트롤")
+
+    createButton(trollPage, "🎒 툴 다 가져오기 (Tool Grabber)", function()
+        local character = localPlayer.Character
+        if not character then return end
+        for _, item in pairs(workspace:GetDescendants()) do
+            if item:IsA("Tool") then
+                local clone = item:Clone()
+                clone.Parent = localPlayer.Backpack
+            end
+        end
+    end)
+
+    local deleteToolActive = false
+    createButton(trollPage, "💥 클릭 파츠 삭제 툴", function()
+        deleteToolActive = not deleteToolActive
+        if deleteToolActive then
+            local tool = Instance.new("Tool")
+            tool.RequiresHandle = false
+            tool.Name = "삭제 툴 (Delete Tool)"
+            tool.Activated:Connect(function()
+                local target = Mouse.Target
+                if target then target:Destroy() end
+            end)
+            tool.Parent = localPlayer.Backpack
+        end
+    end)
+
+    local noclipEnabled = false
+    createButton(trollPage, "👻 노클립 (Noclip) 토글", function()
+        noclipEnabled = not noclipEnabled
+    end)
+
+    createButton(trollPage, "👥 모든 사람 내쪽으로 불러오기", function()
+        local myChar = localPlayer.Character
+        if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return end
+        local myPos = myChar.HumanoidRootPart.CFrame
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                p.Character.HumanoidRootPart.CFrame = myPos + Vector3.new(3, 0, 0)
+            end
+        end
+    end)
+
+    createButton(trollPage, "🌪️ 사람들 날리기 시스템", function()
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local root = p.Character.HumanoidRootPart
+                local bodyVel = Instance.new("BodyVelocity")
+                bodyVel.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                bodyVel.Velocity = Vector3.new(math.random(-100, 100), 300, math.random(-100, 100))
+                bodyVel.Parent = root
+                task.delay(0.5, function()
+                    if bodyVel then bodyVel:Destroy() end
+                end)
+            end
+        end
+    end)
+
+    RunService.Stepped:Connect(function()
+        if noclipEnabled and localPlayer.Character then
+            for _, part in pairs(localPlayer.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end)
+end)
